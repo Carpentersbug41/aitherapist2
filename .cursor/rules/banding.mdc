@@ -1,0 +1,77 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Strictly Focused IELTS Grading Prompts: Project Brief
+
+## Objective
+To ensure that each automated IELTS grading prompt (for Task Response, Coherence & Cohesion, Lexical Resource, and Grammatical Range & Accuracy) evaluates **only** its designated criterion, without overlap or cross-penalization.
+
+---
+
+## What We Did
+
+1. **Isolated Each Criterion**
+   - **Task Response (TR):**  
+     Only grades structure, coverage of required elements, and presence/absence of new ideas.  
+     Does **not** mention or penalize for grammar, vocabulary, awkward phrasing, or informality.
+   - **Coherence & Cohesion (CC):**  
+     Only grades logical flow and use of linking words.  
+     Does **not** mention or penalize for structure, grammar, vocabulary, or idea accuracy.
+   - **Lexical Resource (LR):**  
+     Only grades vocabulary: range, precision, naturalness, appropriateness, and repetition.  
+     Does **not** mention or penalize for structure, grammar, or idea coverage.
+   - **Grammatical Range & Accuracy (GRA):**  
+     Only grades grammar and punctuation.  
+     Does **not** mention or penalize for structure, vocabulary, or idea coverage.
+
+2. **Explicit Instructions in Each Prompt**
+   - Each prompt now **explicitly instructs** the model to ignore all other criteria.
+   - Example: “Do NOT mention or penalize for grammar, vocabulary, or idea coverage—these are for other criteria.”
+
+3. **Band Descriptors and Rationales**
+   - Band descriptors and rationale examples are **strictly limited** to the relevant criterion.
+   - Example: LR rationale only discusses vocabulary, not structure or grammar.
+
+4. **Example Rationales**
+   - Each prompt includes sample rationales for Band 9 and Band 7, demonstrating the correct focus.
+
+5. **No Cross-Penalization**
+   - Errors in grammar, vocabulary, or structure are **never** mentioned in the rationale for a different criterion.
+   - Each criterion is assessed in isolation, as per official IELTS marking standards.
+
+---
+
+## Why This Matters
+
+- **Fairness:**  
+  Candidates are not unfairly penalized multiple times for the same error.
+- **Clarity:**  
+  Feedback is clear, actionable, and relevant to the specific criterion.
+- **Alignment with IELTS:**  
+  Mirrors the real IELTS band descriptors and marking philosophy.
+
+---
+
+## Summary Table
+
+| Prompt | What is Graded | What is Ignored |
+|--------|----------------|-----------------|
+| TR     | Structure, required elements, new ideas | Grammar, vocabulary, linking, idea accuracy |
+| CC     | Logical flow, linking words | Structure, grammar, vocabulary, idea accuracy |
+| LR     | Vocabulary (range, precision, naturalness, repetition) | Structure, grammar, idea coverage |
+| GRA    | Grammar, punctuation | Structure, vocabulary, idea coverage |
+
+---
+
+## How to Use
+
+- When writing or updating grading prompts for LLMs, **always specify** what to grade and what to ignore.
+- Provide **example rationales** that only mention the relevant criterion.
+- **Never cross-penalize** or comment on errors outside the scope of the current criterion.
+
+---
+
+**This approach ensures that automated IELTS grading is fair, focused, and aligned with best assessment practices.**
+

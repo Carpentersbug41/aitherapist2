@@ -1,0 +1,117 @@
+---
+description: # Prompt Structure Rules
+globs: 
+alwaysApply: false
+---
+# Prompt Structure Rules (`prompt_text`)
+
+This document defines the standard structure and conventions for writing the `prompt_text` property within each `PromptType` object in the `PROMPT_LIST` array (`prompts_*.ts` files or `promptFlowTemplate.ts`). Adhering to this structure ensures clarity, consistency, and reliable LLM behavior.
+
+## 1. Purpose
+
+The `prompt_text` provides specific instructions to the Language Model (LLM) for a single step in the conversation. A well-structured prompt clearly defines the LLM's role, task, constraints, and expected output format for that step.
+
+## 2. Standard Sections (Order Matters)
+
+Each `prompt_text` should ideally contain the following sections, formatted using Markdown as specified, in this order:
+
+### 2.1. `# System message:` (Required)
+
+-   **Format:** H1 Markdown heading (`# System message:`).
+-   **Purpose:** Defines the LLM's persona, role, or core expertise *specifically for this task*. It sets the context for how the LLM should interpret the subsequent instructions.
+-   **Content:** Should be concise and directly relevant to the prompt's goal (e.g., "You are an expert in...", "You are an AI trained to extract...").
+
+### 2.2. `## Task Instructions:` (Required)
+
+-   **Format:** H2 Markdown heading (`## Task Instructions:`).
+-   **Purpose:** Clearly outlines the primary goal(s) and steps the LLM must perform.
+-   **Content:**
+    -   Use **numbered lists** (`1.`, `2.`, etc.) for sequential steps or distinct actions.
+    -   Use clear, **actionable verbs** for instructing the LLM (e.g., "Output exactly...", "Identify...", "Extract...", "Compare..."). *Note: While instructions *to the LLM* should be direct, ensure any text intended for the *end-user* (often defined in `Example Output` or specific instructions like "Ask the user...") maintains a natural and appropriate conversational tone.*
+    -   Be specific and unambiguous.
+    -   Use **bold (`**text**`)** or `ALL CAPS` (sparingly) for emphasis on critical instructions or keywords (e.g., `**ONLY**`, `**EXACTLY**`, `**NEVER** modify...`).
+
+### 2.3. `### Example Input:` (Optional, Context-Dependent)
+
+-   **Format:** H3 Markdown heading (`### Example Input:`).
+-   **Purpose:** Provides context when the LLM needs to process or analyze specific input text (e.g., analyzing a user's sentence, comparing two texts from memory).
+-   **Content:** Show a realistic example of the input the LLM might encounter or need to work with for this specific task.
+
+### 2.4. `### Example Output:` (Required)
+
+-   **Format:** H3 Markdown heading (`### Example Output:`).
+-   **Purpose:** **Crucial** for constraining the LLM's response format and content. Shows the *exact* desired output.
+-   **Content:**
+    -   Provide a **concrete, literal example** of the expected output string.
+    -   If the task is complex or the LLM struggles with formatting, consider providing **multiple examples** (few-shot priming) to reinforce the desired structure.
+    -   Use placeholders like `<User Input>` or `<Extracted Text>` within the example *only if* the structure requires them, clearly indicating what they represent.
+    -   Match the formatting (bolding, line breaks, etc.) precisely.
+
+### 2.5. `### Additional Rules:` (Required, if applicable)
+
+-   **Format:** H3 Markdown heading (`### Additional Rules:`).
+-   **Purpose:** Lists constraints, **negative constraints** (what *not* to do), and specific formatting requirements not covered elsewhere. Be explicit about unwanted behaviors.
+-   **Content:**
+    -   Use **bullet points (`-`)** for individual rules.
+    -   Include critical constraints like:
+        -   "Do not add any extra text, explanations, or formatting."
+        -   "The output must match exactly."
+        -   "NEVER ask anything else!" (For prompts that shouldn't be conversational).
+        -   "Preserve the exact phrasing and formatting."
+        -   "Do not include commentary."
+        -   "Do not offer opinions."
+        -   "Do not apologize or use conversational filler."
+    -   Reinforce key instructions using **bold (`**text**`)**.
+
+## 3. Optional Sections
+
+### 3.1. Horizontal Rule (`---`)
+
+-   **Format:** Markdown horizontal rule (`---`).
+-   **Purpose:** Can be used sparingly to visually separate major sections within very long or complex prompts, such as before a final reinforcement section.
+
+### 3.2. Reinforcement / Final Checklist
+
+-   **Format:** Can be plain text, bullet points, or use emojis (e.g., ✅). Often placed after `Additional Rules` or a `---`.
+-   **Purpose:** In prompts requiring extreme precision (e.g., exact data retrieval from memory), this section re-emphasizes the most critical rules just before the LLM generates its response.
+
+## 4. General Best Practices & Prompt Engineering Tips
+
+-   **Clarity:** Use simple, direct language. Avoid jargon where possible.
+-   **Specificity:** Leave no room for ambiguity in instructions or expected output.
+-   **Conciseness:** Be as brief as possible while still being clear. Remove redundant instructions.
+-   **Focus & Single Responsibility:** Each prompt should ideally focus on a **single, well-defined cognitive task**. If a step requires multiple distinct actions (e.g., extract data A, extract data B, compare A and B, then generate feedback), **break it down** into multiple, sequential `PromptType` objects in the `PROMPT_LIST`, often linked by `autoTransitionVisible: true`. *Flag prompts attempting multiple complex tasks for refactoring.*
+-   **Instruction Placement:** Place the most critical instructions early in the `Task Instructions`. Use `Additional Rules` and `Reinforcement` sections for constraints and final checks.
+-   **Placeholders & Memory Keys:**
+    -   For **template files** (like `promptFlowTemplate.ts`), use bracketed placeholders like `[Skill Name]`, `[Content Type]` to indicate text that needs customization in specific module files.
+    -   For **dynamic data injection**, use curly braces around a descriptive key (e.g., `{user_input}`, `{original_question}`). This `{memory_key}` format is essential. The backend system (`injectNamedMemory`) replaces these placeholders with the corresponding values stored in the session's `namedMemory` object *before* the prompt is sent to the LLM, providing crucial context. Ensure these keys match the `saveAssistantOutputAs` or `saveUserInputAs` keys used in previous steps.
+-   **Audience Awareness:** The "System message" often sets the tone. Ensure the LLM's *output text intended for the user* (defined in instructions or examples) is appropriate for the end-user (natural, clear, not overly technical).
+-   **`PromptType` Properties:** Remember that flow control (`autoTransitionVisible`, `validation`, `fallbackIndex`), state management (`saveUserInputAs`, `saveAssistantOutputAs`, `important_memory`, `buffer_memory`), and LLM parameters (`temperature`, `model`) are handled by properties *outside* the `prompt_text` string. The `prompt_text` focuses solely on the instructions *for the LLM* during its generation turn.
+-   **Testing & Iteration:** Prompt engineering is iterative. **Always test** new or modified prompts thoroughly with varied inputs (including edge cases or potential errors) to ensure they produce the desired output reliably. Observe failures and refine the `prompt_text` or `PromptType` properties to improve robustness.
+-   **Suppressing Reasoning:** Ensure prompts guide the LLM to output only the final, desired result in the specified format, suppressing any intermediate reasoning or "thinking aloud" unless explicitly desired (which is rare in this application).
+
+## 5. Complete Example Structure
+
+```markdown
+# System message:
+[LLM Role/Persona for this specific task]
+
+## Task Instructions:
+1. [Step 1 - Clear, actionable instruction for LLM]
+2. [Step 2 - Use **bold** for emphasis]
+3. [Step 3 - Example instruction defining user-facing output: Ask the user "Your question here?"]
+
+### Example Input: (If needed)
+[Example of input text the LLM will process, potentially using {memory_key}]
+
+### Example Output:
+[Exact, literal example of the desired output string the LLM should produce]
+[Consider adding a second example if format is complex]
+
+### Additional Rules:
+- [Constraint 1, e.g., Output must match exactly.]
+- [Negative Constraint 2, e.g., Do not add commentary or explanations.]
+- [Constraint 3, e.g., **NEVER** ask follow-up questions.]
+```
+
+By following these rules, we can create more consistent, maintainable, and effective prompts for the chat application.

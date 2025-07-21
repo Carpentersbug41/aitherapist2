@@ -1,0 +1,53 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+How to Add Supabase Environment Variables via Vercel CLI
+First, make sure you have the Vercel CLI installed. If not:
+Generated bash
+npm install -g vercel
+# or
+yarn global add vercel
+# or
+pnpm add -g vercel
+Use code with caution.
+Bash
+Then, make sure you're logged in:
+Generated bash
+vercel login
+Use code with caution.
+Bash
+Now, you can add your environment variables using the vercel env add command. You'll add each one individually.
+1. NEXT_PUBLIC_SUPABASE_URL (Public, Client-Side)
+Generated bash
+vercel env add NEXT_PUBLIC_SUPABASE_URL
+Use code with caution.
+Bash
+When prompted, paste your Supabase Project URL (e.g., https://abcdefghijk.supabase.co).
+Then, it will ask for the environment(s). You can type development,preview,production and press Enter.
+2. NEXT_PUBLIC_SUPABASE_ANON_KEY (Public, Client-Side)
+Generated bash
+vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY
+Use code with caution.
+Bash
+When prompted, paste your Supabase "Anon Public Key".
+Again, type development,preview,production for the environments.
+3. SUPABASE_SERVICE_ROLE_KEY (Secret, Server-Side Only)
+Generated bash
+vercel env add SUPABASE_SERVICE_ROLE_KEY
+Use code with caution.
+Bash
+When prompted, paste your Supabase "Service Role Key".
+For environments, development,preview,production is usually fine, but remember this key should never reach the client. The lack of NEXT_PUBLIC_ prefix ensures this in Next.js.
+Important Notes for CLI Usage:
+Project Context: When you run vercel env add, the CLI will try to detect the current Vercel project based on your vercel.json file or by asking you to link it. Make sure you're in the root directory of your Next.js project.
+Local .env.local: Using vercel env add does not automatically update or create your local .env.local file. You still need to manually create and populate .env.local in your project's root directory for local development. Remember to keep .env.local in your .gitignore.
+Generated code
+# .env.local
+NEXT_PUBLIC_SUPABASE_URL=https://abcdefghijk.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_ANON_PUBLIC_KEY
+SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY
+Use code with caution.
+Redeployment: After adding environment variables via CLI (or UI), you might need to trigger a new deployment on Vercel for your application to pick up the changes. A simple git push will usually suffice if you have automatic deployments configured.
+Go ahead and try adding them via the CLI. It's a faster workflow once you're comfortable with it. Once those are configured, we'll integrate the Supabase client into your Next.js app.

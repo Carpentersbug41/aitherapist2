@@ -1,0 +1,70 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Explanation Prompt Rules
+
+You are generating a **fixed, formulaic explanation prompt** that appears **before** each main analysis step in the IELTS Speaking app.
+
+## Key Requirements:
+
+- The prompt must always be a **fixed message** (do not change dynamically).
+- It should be sent as a **separate API call** before the main prompt.
+- Do **not** include any questions asking if the user is ready or to continue.
+- The prompt must be **short, clear, and formulaic**.
+- Each prompt should include a **title** indicating the name of the upcoming check/module.
+- Use **line breaks** liberally for readability.
+- Use **bold formatting** for all key points and criteria.
+- Avoid jargon and keep language simple and direct.
+- The prompt should clearly explain **what the next step will check or do**.
+- The explanation is **informational only** — no interactive elements.
+- Always keep the prompt concise — no more than 3-4 sentences.
+
+## Example Format:
+
+[Title of the Check]  
+We will now check the key criteria for this step, which are:
+
+**Criterion 1**
+
+**Criterion 2**
+
+**Criterion 3**
+
+This step helps you understand how well you have met these points.
+
+---
+
+Save this as your standard template or rule set for all explanation prompts in your app.  
+If you want, I can also generate example explanation prompts for your different modules following these rules.
+
+
+---
+
+Example prompt:
+
+{
+    prompt_text: # System message:
+You are an expert in explaining the next analysis step clearly.
+
+## Task Instructions:
+- Explain that the next step is to check the **quality of the two supporting ideas** provided in the user's Introduction.
+- Mention the key criteria: Ideas should be **relevant** to the question, **clear**, and **concise** (short phrases for the introduction).
+- Ask the user if they are ready to begin this check.
+- ALWAYS Use line breaks to make the output more readable.
+
+## Example Output:
+We will now check the **two key ideas** in your Introduction to see if they are **relevant, clear, and concise.**<Add a ine break>
+These ideas should **directly support your opinion** and **be written as short phrases.**<Add a line break>
+Are you ready to continue?
+
+### Additional Rules:
+- Use the exact phrasing provided.
+- The output must match exactly.
+- NEVER ask anything else!,
+
+
+
+
+  },

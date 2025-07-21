@@ -1,0 +1,100 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# IELTS Speaking Mock-Test App Development Plan
+
+Based on the **Hume EVI Next-JS Starter**.
+
+---
+
+## Phase 1: Initial Setup & Verification
+
+1.  **Create `.env` File:** Ensure the `.env` file exists in the `ielts-speaking-mock-test` project root and contains the correct `HUME_API_KEY` and `HUME_SECRET_KEY`. (Also add `OPENAI_API_KEY` placeholder for later).
+2.  **Stop Previous Server Processes:** Find and terminate any lingering `npm run dev` or Node.js processes related to previous attempts.
+3.  **Verify Base Starter:** Run `npm run dev` again. Access `http://localhost:3000` and confirm the original Hume EVI starter application loads and functions correctly with the Hume API keys.
+
+## Phase 2: Core Backend Implementation
+
+4.  **Project Scaffolding & Dependencies:**
+    *   Install OpenAI SDK: `npm install openai`.
+    *   Ensure required directories exist: `lib`, `app/api/transcribe`, `app/api/ask`, `app/api/speak`, `app/api/pipeline`.
+5.  **Implement OpenAI Client (`lib/openai.ts`):**
+    *   Create and export an OpenAI client instance.
+    *   Configure it using the `OPENAI_API_KEY` environment variable. (Add the actual key to `.env`).
+6.  **Implement Prompt List (`lib/promptList.ts`):**
+    *   Define the `PromptType` interface.
+    *   Create and export the `PROMPT_LIST` array containing the 6 predefined LLM prompt objects for the examiner's questions.
+    *   **NOTE:** The initial prompts enforce specific wording. For true stateful conversation where the LLM adapts based on history, these prompts might need refinement to be less restrictive while still guiding the conversation flow (e.g., asking about 'hometown' but allowing flexibility based on previous answers).
+7.  **Implement Rubric Prompts (`lib/rubricPrompts.ts`):**
+    *   Define and export the four distinct rubric prompt templates for evaluating the candidate's transcript.
+8.  **Implement Transcription API (`/api/transcribe/route.ts`):**
+    *   Handle POST requests with audio data.
+    *   Call `openai.audio.transcriptions.create` using `whisper-1`.
+    *   Return the resulting transcript text.
+9.  **Implement Question API (`/api/ask/route.ts`):**
+    *   Handle POST requests containing the `turn` number **and the `chatHistory` array**.
+    *   Fetch the guiding prompt for the `turn` from `lib/promptList.ts`.
+    *   **Combine the guiding prompt with the `chatHistory`** and call `openai.chat.completions.create` using `gpt-4o-mini`.
+    *   Return the generated question text, **which should consider the history while adhering to the prompt's guidance.**
+10. **Implement Text-to-Speech API (`/api/speak/route.ts`):**
+    *   Handle POST requests containing the examiner's question text.
+    *   Call `openai.audio.speech.create` using `tts-1` (voice: "alloy").
+    *   Return the generated MP3 audio data.
+11. **Implement Feedback Pipeline API (`/api/pipeline/route.ts`):**
+    *   Handle POST requests containing the full conversation transcript.
+    *   Iterate through the `rubricPrompts` from `lib/rubricPrompts.ts`.
+    *   For each rubric, call `openai.chat.completions.create` with the transcript and rubric prompt using `gpt-4o-mini`.
+    *   Compile the band scores and feedback paragraphs.
+    *   Return the structured feedback object.
+
+## Phase 3: Frontend Implementation & Integration
+
+12. **Adapt Microphone Hook (`app/hooks/useMic.ts`):**
+    *   Review and modify the existing hook or create a new one.
+    *   Ensure audio is captured (preferably WebM).
+    *   Manage recording states (`idle`, `recording`).
+    *   Implement a user notification (e.g., toast) if the microphone API is unavailable.
+13. **Refactor Main Page (`app/page.tsx`):**
+    *   Remove or significantly adapt the Hume EVI WebSocket logic (`useVoice` hook, `VoiceProvider`).
+    *   Implement the new state machine: `idle` → `recording` → `transcribing` → `asking` → `speaking` → `idle` (loop) | `finished` → `processing_feedback` → `show_results` → `idle`.
+    *   Manage the `turn` state (0-6).
+    *   **UI Flow:**
+        *   *Mic Press:* Transition to `recording`, start audio capture via `useMic`.
+        *   *Recording Stop:*
+            *   Transition to `transcribing`.
+            *   POST audio data to `/api/transcribe`.
+            *   On response, display user transcript in a chat bubble.
+            *   Transition to `asking`.
+            *   **POST `{ turn, history }` to `/api/ask`.** // Ensure history is sent
+        *   *Question Received:*
+            *   Transition to `speaking`.
+            *   POST question text to `/api/speak`.
+        *   *Audio Received:*
+            *   Play the MP3 audio.
+            *   Display examiner question in a chat bubble.
+            *   Increment `turn`. If `turn < 6`, transition back to `idle`.
+            *   If `turn === 6`, transition to `finished`.
+        *   *Finished State:*
+            *   Transition to `processing_feedback`.
+            *   Display loading indicator.
+            *   POST full transcript to `/api/pipeline`.
+        *   *Feedback Received:*
+            *   Transition to `show_results`.
+            *   Display band scores and feedback paragraphs in a dedicated panel.
+            *   Offer a way to restart/return to `idle`.
+    *   Implement basic error handling (e.g., transition to `error` state, show message, allow retry/return to `idle`).
+
+## Phase 4: Documentation & Deployment
+
+14. **Create/Update Documentation:**
+    *   Update `README.md` to reflect the IELTS project purpose, setup, and usage.
+    *   Create `ARCHITECTURE.md` detailing the new turn-by-turn flow and API interactions.
+    *   Create `COST.md` estimating costs based on OpenAI model usage.
+    *   Update `.env.example` to include `OPENAI_API_KEY`.
+15. **Testing & Refinement:** Conduct end-to-end testing of the complete user flow. Debug any issues in API routes, frontend state, or UI rendering. Refine prompts and UI as needed.
+16. **Deployment:** Deploy the finalized application to Vercel using the Hobby tier (`vercel --prod`).
+
+
+---
